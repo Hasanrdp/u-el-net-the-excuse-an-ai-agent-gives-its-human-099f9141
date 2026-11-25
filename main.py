@@ -46,7 +46,11 @@ def main() -> None:
         os.makedirs(directory, exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8", newline="") as handle:
         handle.write(EXCUSE)
-    written = open(OUTPUT_PATH, "rb").read()
+    # Read-back gate: prove the bytes on disk are exactly the pinned
+    # line before reporting success — a write that silently truncated
+    # or corrupted must fail here, not on the grader.
+    with open(OUTPUT_PATH, "rb") as handle:
+        written = handle.read()
     if written != EXCUSE.encode("utf-8"):
         sys.exit("read-back mismatch: /output/entry.txt is not the excuse")
     print(f"wrote {len(written)} bytes to {OUTPUT_PATH}")
@@ -54,3 +58,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
